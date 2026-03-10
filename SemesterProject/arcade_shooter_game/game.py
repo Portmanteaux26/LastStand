@@ -4,10 +4,11 @@ import random
 from enum import Enum
 from abc import ABC, abstractmethod
 import pygame
-from arcade_shooter_game.things import *   
+from arcade_shooter_game.things import *
 from arcade_shooter_game.enums import *
 from arcade_shooter_game.player import *
 from arcade_shooter_game.enemy import *
+from arcade_shooter_game.managers import InputManager, Action
 
 @dataclass(frozen=True)
 class Palette:
@@ -42,7 +43,7 @@ class Game:
             self.PADDING,
             self.SCREEN_H - 2 * self.PADDING,
             self.SCREEN_H - 2 * self.PADDING,
-        )
+            )
 
         self.debug = False
         self.state = "title"  # title | play | gameover
@@ -51,17 +52,19 @@ class Game:
         self.all_living : list[Living] = []
         self.all_enemies : list[Enemy] = []
 
-        self.player = Player(self.playfield.center,self.palette.player)
+        self.input = InputManager()
+
+        self.player = Player(self.playfield.center, self.input, self.playfield, self.palette.player)
         self.all_living.append(self.player)
         self.all_things.append(self.player)
         self.draw()
-    
+
     def _reset_game(self, *, keep_state: bool = False) -> None:
         self.all_things : list[Thing] = []
         self.all_living : list[Living] = []
         self.all_enemies : list[Enemy] = []
 
-        self.player = Player(self.playfield.center,self.palette.player)
+        self.player = Player(self.playfield.center, self.input,self.playfield, self.palette.player)
         self.all_living.append(self.player)
         self.all_things.append(self.player)
 
@@ -82,13 +85,15 @@ class Game:
             self._reset_game(keep_state=(self.state == "title"))
             return
 
-        if self.state in {"title", "gameover"} and event.key == pygame.K_SPACE:
+    def update(self, dt: float) -> None:
+        self.input.update()
+        if self.input.just_pressed(Action.CONFIRM) and self.state in {"title", "gameover"}:
             self._reset_game(keep_state=True)
             self.state = "play"
 
-    def update(self, dt: float) -> None:
-        for living in self.all_living:
-            living.update()
+        if self.state == "play":
+            for living in self.all_living:
+                living.update(dt)
 
     def draw(self) -> None:
         self.screen.fill(self.palette.hud)

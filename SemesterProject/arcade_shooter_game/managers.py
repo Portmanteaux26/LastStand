@@ -1,0 +1,84 @@
+from __future__ import annotations
+from enum import Enum, auto
+import pygame
+
+
+class Action(Enum):
+    MOVE_UP    = auto()
+    MOVE_DOWN  = auto()
+    MOVE_LEFT  = auto()
+    MOVE_RIGHT = auto()
+    SHOOT      = auto()
+    PAUSE      = auto()
+    CONFIRM    = auto()
+
+DEFAULT_BINDINGS: dict[Action, list[int]] = {
+    Action.MOVE_UP:    [pygame.K_w, pygame.K_UP],
+    Action.MOVE_DOWN:  [pygame.K_s, pygame.K_DOWN],
+    Action.MOVE_LEFT:  [pygame.K_a, pygame.K_LEFT],
+    Action.MOVE_RIGHT: [pygame.K_d, pygame.K_RIGHT],
+    Action.SHOOT:      [pygame.K_SPACE, pygame.K_j],
+    Action.PAUSE:      [pygame.K_ESCAPE],
+    Action.CONFIRM:    [pygame.K_SPACE, pygame.K_RETURN],
+}
+
+class InputManager:
+    """
+    Tracks per-frame action states.
+    """
+    def __init__(self, bindings: dict[Action, list[int]] | None = None) -> None:
+        self._bindings: dict[Action, list[int]] = (
+            {k: list(v) for k, v in DEFAULT_BINDINGS.items()}
+            if bindings is None
+            else bindings
+        )
+        self._held:         set[Action] = set()
+        self._just_pressed: set[Action] = set()
+        self._just_released: set[Action] = set()
+
+
+    def held(self, action: Action) -> bool:
+        """True every frame the action's key is held down."""
+        return action in self._held
+
+    def just_pressed(self, action: Action) -> bool:
+        """True only on the first frame the action's key is pressed."""
+        return action in self._just_pressed
+
+    def just_released(self, action: Action) -> bool:
+        """True only on the frame the action's key is released."""
+        return action in self._just_released
+
+    def movement_vector(self) -> pygame.Vector2:
+        """
+        Returns a (possibly zero) direction vector from the four movement
+        actions. Normalized when diagonal so the speed stays consistent.
+        """
+        vec = pygame.Vector2(0, 0)
+        if self.held(Action.MOVE_LEFT):  vec.x -= 1
+        if self.held(Action.MOVE_RIGHT): vec.x += 1
+        if self.held(Action.MOVE_UP):    vec.y -= 1
+        if self.held(Action.MOVE_DOWN):  vec.y += 1
+        if vec.length_squared() > 0:
+            vec.normalize_ip()
+        return vec
+
+    def bind(self, action: Action, keys: list[int]) -> None:
+        """Replace the key list for a given action."""
+        self._bindings[action] = keys
+
+    def update(self) -> None:
+        """
+        Reads the current pygame key state and refreshes held /
+        just_pressed / just_released sets.  Call before any game logic.
+        """
+        prev_held = self._held.copy()
+        self._held.clear()
+
+        keys = pygame.key.get_pressed()
+        for action, key_list in self._bindings.items():
+            if any(keys[k] for k in key_list):
+                self._held.add(action)
+
+        self._just_pressed  = self._held  - prev_held
+        self._just_released = prev_held   - self._held
