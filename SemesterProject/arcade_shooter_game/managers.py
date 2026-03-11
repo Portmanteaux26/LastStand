@@ -63,7 +63,6 @@ class InputManager:
             vec.normalize_ip()
         return vec
 
-    @staticmethod
     def aim_vector(self, from_pos: pygame.Vector2, bounds: pygame.Rect) -> pygame.Vector2:
         """
         Returns a (possibly zero) direction vector from player to mouse pos.

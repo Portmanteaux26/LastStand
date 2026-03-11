@@ -14,5 +14,5 @@ class Movement_styles(Enum):
     #Stationary
     MOVEMENT_STATIONARY = 5
 class Shape(Enum):
-    RECTANGLE : 0
-    CIRCLE : 1
+    RECTANGLE = 0
+    CIRCLE = 1

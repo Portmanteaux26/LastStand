@@ -52,6 +52,7 @@ class Game:
         self.all_things : list[Thing] = []
         self.all_living : list[Living] = []
         self.all_enemies : list[Enemy] = []
+        self.all_projectiles: list[Projectile] = []
 
         self.input = InputManager()
 
@@ -64,6 +65,7 @@ class Game:
         self.all_things : list[Thing] = []
         self.all_living : list[Living] = []
         self.all_enemies : list[Enemy] = []
+        self.all_projectiles: list[Projectile] = []
 
         self.player = Player(self.playfield.center, self.input,self.playfield, self.palette.player)
         self.all_living.append(self.player)
@@ -95,6 +97,19 @@ class Game:
         if self.state == "play":
             for living in self.all_living:
                 living.update(dt)
+
+            if self.input.held(Action.SHOOT) or pygame.mouse.get_pressed()[0]:
+                new_proj = self.player.shoot()
+                if new_proj is not None:
+                    self.all_projectiles.append(new_proj)
+                    self.all_living.append(new_proj)
+                    self.all_things.append(new_proj)
+
+            expired = [p for p in self.all_projectiles if p.lifespan <= 0 or not self.playfield.collidepoint(p.shape.position)]
+            for p in expired:
+                self.all_projectiles.remove(p)
+                self.all_living.remove(p)
+                self.all_things.remove(p)
 
     def draw(self) -> None:
         self.screen.fill(self.palette.hud)

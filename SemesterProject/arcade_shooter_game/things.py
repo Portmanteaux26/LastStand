@@ -53,17 +53,22 @@ class Projectile(Living):
     direction : pygame.Vector2
     #how long the projectile will last before despawning
     lifespan : float
-    def __init__(self, internal_shape : ShapeContainer = ShapeContainer(circle_5), hostile : bool = True, damage : int = 1, lifespan : float = 10, direction : pygame.Vector2 = pygame.Vector2(1, 0)):
+
+    def __init__(self, internal_shape: ShapeContainer = None, hostile: bool = True, damage: int = 1,
+                 lifespan: float = 10, direction: pygame.Vector2 = pygame.Vector2(1, 0), speed: float = 600.0):
+        self.shape = internal_shape if internal_shape is not None else ShapeContainer(radius=5)
         self.hostile = hostile
         self.damage = damage
         self.direction = direction
         self.lifespan = lifespan
+        self.speed = speed
 
     #This function is used to create a projectile as a copy of an existing template
-    def clone(template : Projectile, direction : pygame.Vector2, hostile : bool = True):
-        return Projectile(template.shape,hostile,template.damage,template.lifespan,direction)
-    
+    def clone(template: Projectile, direction: pygame.Vector2, hostile: bool = True):
+        return Projectile(template.shape, hostile, template.damage, template.lifespan, direction, template.speed)
+
     def update(self, dt: float):
-        super()
-        self.shape.position += (self.direction*self.speed)
+        super().update(dt)
+        self.shape.position += self.direction * self.speed * dt
+        self.lifespan -= dt
 
