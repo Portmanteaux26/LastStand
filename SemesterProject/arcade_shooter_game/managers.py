@@ -63,6 +63,20 @@ class InputManager:
             vec.normalize_ip()
         return vec
 
+    @staticmethod
+    def aim_vector(self, from_pos: pygame.Vector2, bounds: pygame.Rect) -> pygame.Vector2:
+        """
+        Returns a (possibly zero) direction vector from player to mouse pos.
+        Normalized when diagonal so the speed stays consistent.
+        """
+        mouse = pygame.Vector2(pygame.mouse.get_pos())
+        mouse.x = max(bounds.left, min(bounds.right, mouse.x))
+        mouse.y = max(bounds.top, min(bounds.bottom, mouse.y))
+        direction = mouse - from_pos
+        if direction.length_squared() > 0:
+            direction.normalize_ip()
+        return direction
+
     def bind(self, action: Action, keys: list[int]) -> None:
         """Replace the key list for a given action."""
         self._bindings[action] = keys

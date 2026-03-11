@@ -45,6 +45,7 @@ class Game:
             self.SCREEN_H - 2 * self.PADDING,
             )
 
+        pygame.event.set_grab(True)
         self.debug = False
         self.state = "title"  # title | play | gameover
 
