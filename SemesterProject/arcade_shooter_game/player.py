@@ -17,10 +17,16 @@ class Player(Living):
         self.max_speed = 1000.0
         self._shoot_cooldown = 0.15
         self._shoot_timer = 0.0
+        self.health = 10
+        self.max_health = 10
+        self.damage_cooldown : float = 0.0
+        self.damage_cooldown_time : float = .25  # seconds of invincibility after a hit
 
     def update(self, dt: float) -> None:
         super().update(dt)
         self._shoot_timer = max(0.0, self._shoot_timer - dt)
+        if self.damage_cooldown > 0:
+            self.damage_cooldown -= dt
         move_vec = self.input.movement_vector()
         self.velocity += move_vec * self.acceleration * dt
         self.velocity *= self.friction

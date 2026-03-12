@@ -54,6 +54,17 @@ class Game:
         self.all_enemies : list[Enemy] = []
         self.all_projectiles: list[Projectile] = []
 
+        self.spawn_timer : float = 0.0
+        self.spawn_interval : float = 1.5  # seconds between spawns
+        self.score : int = 0
+
+        self.wave : int = 1
+        self.enemies_spawned : int = 0
+        self.wave_enemy_cap : int = 5  # round 1 cap
+
+        #Load enemy templates from json
+        self.enemy_templates = load_enemies()
+
         self.input = InputManager()
 
         self.player = Player(self.playfield.center, self.input, self.playfield, self.palette.player)
@@ -66,6 +77,12 @@ class Game:
         self.all_living : list[Living] = []
         self.all_enemies : list[Enemy] = []
         self.all_projectiles: list[Projectile] = []
+
+        self.spawn_timer = 0.0
+        self.score = 0
+        self.wave = 1
+        self.enemies_spawned = 0
+        self.wave_enemy_cap = 5
 
         self.player = Player(self.playfield.center, self.input,self.playfield, self.palette.player)
         self.all_living.append(self.player)
@@ -95,6 +112,21 @@ class Game:
             self.state = "play"
 
         if self.state == "play":
+            #Spawn enemies on a timer, up to the wave cap
+            self.spawn_timer -= dt
+            if self.spawn_timer <= 0 and self.enemies_spawned < self.wave_enemy_cap:
+                self.spawn_timer = self.spawn_interval
+                self._spawn_enemy()
+                self.enemies_spawned += 1
+
+            #TODO: When all enemies for this wave are dead, advance to next wave
+            # if self.enemies_spawned >= self.wave_enemy_cap and len(self.all_enemies) == 0:
+            #     self.wave += 1
+            #     self.enemies_spawned = 0
+            #     self.wave_enemy_cap = _get_wave_cap(self.wave)
+            #     self.spawn_interval = _get_wave_interval(self.wave)
+            #     — also change enemy types, count, etc. based on wave
+
             for living in self.all_living:
                 living.update(dt)
 
@@ -110,6 +142,98 @@ class Game:
                 self.all_projectiles.remove(p)
                 self.all_living.remove(p)
                 self.all_things.remove(p)
+
+            #Check enemy-player collisions
+            self._check_collisions()
+            #Check bullet-enemy collisions
+            self._check_projectile_collisions()
+
+    def _spawn_enemy(self) -> None:
+        #Pick a random edge: 0=top, 1=bottom, 2=left, 3=right
+        edge = random.randint(0, 3)
+        match edge:
+            case 0:  #top
+                x = random.uniform(self.playfield.left, self.playfield.right)
+                y = self.playfield.top
+            case 1:  #bottom
+                x = random.uniform(self.playfield.left, self.playfield.right)
+                y = self.playfield.bottom
+            case 2:  #left
+                x = self.playfield.left
+                y = random.uniform(self.playfield.top, self.playfield.bottom)
+            case 3:  #right
+                x = self.playfield.right
+                y = random.uniform(self.playfield.top, self.playfield.bottom)
+
+        pos = pygame.Vector2(x, y)
+        #For now, always spawn a chaser. Future waves can pick different template names based on wave
+        template = self.enemy_templates["chaser"]
+        enemy = spawn_from_template(template, pos, self.player)
+        self.all_enemies.append(enemy)
+        self.all_living.append(enemy)
+        self.all_things.append(enemy)
+
+    def _check_collisions(self) -> None:
+        #Check each enemy against the player (circle vs circle)
+        #Only deal damage if the player's cooldown has expired
+        if self.player.damage_cooldown > 0:
+            return
+
+        p_pos = self.player.shape.position
+        p_r = self.player.shape.radius
+
+        for enemy in self.all_enemies:
+            e_pos = enemy.shape.position
+            e_r = enemy.shape.radius
+            dist_sq = (p_pos - e_pos).length_squared()
+            touch_dist = p_r + e_r
+            if dist_sq <= touch_dist * touch_dist:
+                self.player.health -= enemy.contact_damage
+                self.player.damage_cooldown = self.player.damage_cooldown_time
+                break  #Only one hit per cooldown window
+
+        #Player dies when health reaches 0
+        if self.player.health <= 0:
+            self.state = "gameover"
+
+    def _check_projectile_collisions(self) -> None:
+        #Check each player bullet against each enemy (circle vs circle)
+        projectiles_to_remove : list[Projectile] = []
+        enemies_to_remove : list[Enemy] = []
+
+        for proj in self.all_projectiles:
+            #Only player bullets hurt enemies
+            if proj.hostile:
+                continue
+            p_pos = proj.shape.position
+            p_r = proj.shape.radius
+            for enemy in self.all_enemies:
+                if enemy in enemies_to_remove:
+                    continue
+                e_pos = enemy.shape.position
+                e_r = enemy.shape.radius
+                dist_sq = (p_pos - e_pos).length_squared()
+                touch_dist = p_r + e_r
+                if dist_sq <= touch_dist * touch_dist:
+                    enemy.health -= 4
+                    projectiles_to_remove.append(proj)
+                    if enemy.health <= 0:
+                        enemies_to_remove.append(enemy)
+                        self.score += enemy.point_cost
+                    break  #Bullet is consumed on first hit
+
+        for proj in projectiles_to_remove:
+            if proj in self.all_projectiles:
+                self.all_projectiles.remove(proj)
+            if proj in self.all_living:
+                self.all_living.remove(proj)
+            if proj in self.all_things:
+                self.all_things.remove(proj)
+
+        for enemy in enemies_to_remove:
+            self.all_enemies.remove(enemy)
+            self.all_living.remove(enemy)
+            self.all_things.remove(enemy)
 
     def draw(self) -> None:
         self.screen.fill(self.palette.hud)
