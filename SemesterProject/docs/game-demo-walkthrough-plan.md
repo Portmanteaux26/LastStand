@@ -8,10 +8,14 @@
 **Build target:** Win11, Python 3.12  
 
 ## 1) Demo Goal
-TODO: Michael
+Our demo will prove we have functioning game loop and simple, fun core gameplay that can be built on with wave mechanics, enemy variety, and power-up progression.  We hope the audience learns that our game is focused on positioning, aiming, and surviving as long as possible.  Our current scope includes the play loop within a wave of enemies, with one enemy type, one player projectile type, static player statistics and abilities, and no power-ups.  This limited scope allowed us to focus on functionality and the first pass at tuning basic gameplay.
 
 ## 2) Controls and Player Task
-TODO: Michael
+- WASD and arrows for movement, left click and space for shoot
+- Player begins with 10 health, goal is to survive as many waves as possible
+- Core challenge is aim and shoot all enemies in a wave
+    - In each wave, subsequent enemies will spawn faster, so avoiding enemies without destroying them for too long will increase difficulty of completing the wave
+- Lose upon reaching 0 player health, score (waves completed) is displayed, then player can immediately restart at wave 1
 
 ## 3) Playable Demo Script
 ### a) Mitchell (architecture and state machine)
@@ -21,8 +25,14 @@ I started out the project files, outlining the basic architecture of the game us
 I also developed our state machine to control swapping between waves and the "shop", although at the moment you'll see it's just a dance break. The core states are the same as most other projects we've done- Title, Game Over, and play, but there's an additional variable called "Play State" which controls whether we're in the shop or a wave. This is because we still want the player to be able to move around and shoot during the shop, so they can reposition themselves and get a better feel for their controls, which eventually may be upgraded and thus change between waves. 
 
 Speaking of the waves, they're controlled rather simplistically at the moment, although we plan to make things more advanced after the demo. For now, every wave the interval between enemy spawns decreases by a tenth of a second, down to a minimum of .5 at wave 10 and beyond. The enemies spawned each waves works in a similar fashion, although the rate of growth increases until wave 10, at which point a new enemy is added every wave indefinitely. Eventually, we're going to replace these formulas with linearly interpolated ones, but for now this is where we're at.
+
 ### b) Michael (input and player behavior)
-TODO: Michael
+[0:00] I was responsible for implementing player behavior and handling user input.  Player logic is kept in player.py, and I created an InputManager in managers.py  
+[0:30] *<open input manager code in repo/IDE>* I implemented a simple manager class that tracks input using mappings and provides a public interface for other modules to check current and recent input.  
+[1:00] *<open player code in repo/IDE>* I implemented necessary player updates and a shoot method, as well as tuned movement.  
+[1:30] *<run the game to show movement and shooting>* I settled on constant friction with a high acceleration to achieve snappy but not super-fast movement.  I used held input to shoot, letting player focus on movement and aiming rather than mashing.  
+[2:30] *conclude*
+
 ### c) Faris (enemy behavior and collision)
 Script: 
 My main responsibility was the enemy system from how enemies are defined, to how they move, to how they interact with the player.
@@ -37,7 +47,7 @@ Press/Click/Type:
 - When talking about collision show what happens when shooting the enemies by left-clicking the mouse -> response the enemy dies after 3 hits 
 - Then show player enemey collisions by standing still and letting the enemies kill the player -> player should die and the gameover screen should display 
 ## 4) Architecture Map
-Pull up associated PDFs
+Please see attached PDF images.
 
 ## 5) Reliability Checklist
 - Pull any new changes and confirm the game launches without issue 
