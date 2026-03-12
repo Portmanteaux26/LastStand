@@ -48,7 +48,8 @@ class Game:
         pygame.event.set_grab(True)
         self.debug = False
         self.state = "title"  # title | play | gameover
-
+        #additional states used to control behavior of play, since we still want to control player movement, collisions, etc while in the shop
+        self.play_state = "wave" # wave | shop
         self.all_things : list[Thing] = []
         self.all_living : list[Living] = []
         self.all_enemies : list[Enemy] = []
@@ -78,11 +79,13 @@ class Game:
         self.all_enemies : list[Enemy] = []
         self.all_projectiles: list[Projectile] = []
 
+        self.play_state = "wave"
         self.spawn_timer = 0.0
         self.score = 0
         self.wave = 1
         self.enemies_spawned = 0
         self.wave_enemy_cap = 5
+        self.shop_timer = 0.0
 
         self.player = Player(self.playfield.center, self.input,self.playfield, self.palette.player)
         self.all_living.append(self.player)
@@ -110,22 +113,32 @@ class Game:
         if self.input.just_pressed(Action.CONFIRM) and self.state in {"title", "gameover"}:
             self._reset_game(keep_state=True)
             self.state = "play"
+            self.play_state = "wave"
 
         if self.state == "play":
             #Spawn enemies on a timer, up to the wave cap
-            self.spawn_timer -= dt
-            if self.spawn_timer <= 0 and self.enemies_spawned < self.wave_enemy_cap:
-                self.spawn_timer = self.spawn_interval
-                self._spawn_enemy()
-                self.enemies_spawned += 1
-
-            #TODO: When all enemies for this wave are dead, advance to next wave
-            # if self.enemies_spawned >= self.wave_enemy_cap and len(self.all_enemies) == 0:
-            #     self.wave += 1
-            #     self.enemies_spawned = 0
-            #     self.wave_enemy_cap = _get_wave_cap(self.wave)
-            #     self.spawn_interval = _get_wave_interval(self.wave)
-            #     — also change enemy types, count, etc. based on wave
+            if self.play_state == "wave":
+                self.spawn_timer -= dt
+                if self.spawn_timer <= 0 and self.enemies_spawned < self.wave_enemy_cap:
+                    self.spawn_timer = self.spawn_interval
+                    self._spawn_enemy()
+                    self.enemies_spawned += 1
+                #If all enemies are dead we move to the shop
+                print(len(self.all_enemies))
+                if self.enemies_spawned >= self.wave_enemy_cap and len(self.all_enemies) == 0:
+                    print("setting play state to shop")
+                    self.play_state = "shop"
+                    self.shop_timer = 2
+                #Eventually, shop will contain upgrades you can select. For now, we just count down a five second timer to break up the waves.
+            if self.play_state == "shop":
+                self.shop_timer -= dt
+                if self.shop_timer <= 0:
+                    self.wave +=1
+                    self.enemies_spawned = 0
+                    self.wave_enemy_cap = self._get_wave_cap(self.wave)
+                    self.spawn_interval = self._get_spawn_interval(self.wave)
+                    self.play_state = "wave"
+            
 
             for living in self.all_living:
                 living.update(dt)
@@ -147,6 +160,7 @@ class Game:
             self._check_collisions()
             #Check bullet-enemy collisions
             self._check_projectile_collisions()
+        
 
     def _spawn_enemy(self) -> None:
         #Pick a random edge: 0=top, 1=bottom, 2=left, 3=right
@@ -235,6 +249,29 @@ class Game:
             self.all_living.remove(enemy)
             self.all_things.remove(enemy)
 
+    
+    #----Wave calculation methods
+    
+    #Eventually look into linear interpolation for this method, but for the demo this is fine.
+    def _get_wave_cap(self, wave : int):
+        count = 5
+        if wave < 3:
+            count = wave//2 + 5
+        elif wave < 5:
+            count = wave//2 + 7
+        elif wave < 10:
+            count = wave//2 + 9
+        elif wave >= 10:
+            count = wave + 6
+        return count
+
+    def _get_spawn_interval(self, wave : int):
+        interval = 1.5
+        if wave < 10:
+            interval = 1.5 - (wave*.1)
+        else:
+            interval = .5
+        return interval
     def draw(self) -> None:
         self.screen.fill(self.palette.hud)
 
@@ -244,7 +281,12 @@ class Game:
             self._draw_centered("Press Space to Start", y=self.playfield.centery, color=self.palette.text)
         elif self.state == "gameover":
             self._draw_centered("Game Over — Press Space", y=self.playfield.centery, color=self.palette.text)
-
+            self._draw_centered(f"Highest Wave Reached: {self.wave}", y = self.playfield.centery+40, color=self.palette.text)
+        if self.play_state == "shop":
+            self._draw_centered(f"Dance Break! {self.shop_timer:.1f} seconds until next wave.",y=self.playfield.centery, color=self.palette.text)
+        if self.play_state == "wave":
+            self._draw_text(f"Wave: {self.wave}",(10,10),color=self.palette.text)
+            self._draw_text(f"Enemies Left: {(self.wave_enemy_cap-self.enemies_spawned)+len(self.all_enemies)}",(10,30),color=self.palette.text)
         for thing in self.all_things:
             obj = thing.shape
             match obj.shape:

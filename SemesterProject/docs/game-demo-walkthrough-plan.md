@@ -15,7 +15,12 @@ TODO: Michael
 
 ## 3) Playable Demo Script
 ### a) Mitchell (architecture and state machine)
-TODO: Mitchell
+Script:
+I started out the project files, outlining the basic architecture of the game using OOP, inspired by my time modding Rimworld, which uses similar styles of inheritance for creating in game entities of various kinds. I began by adapting the code from previous projects to set up the main shell of everything, then got to work on the various classes we'd be using. These included the classes "Thing", "Living", "Enemy", "Player", and finally "Projectile". By using abstract methods and inheritance, we're able to simplify the work flow and code structure. For example, Instead of having lines for individually drawing all classes, we simply draw every "Thing" in our "all_things" list every frame.
+
+I also developed our state machine to control swapping between waves and the "shop", although at the moment you'll see it's just a dance break. The core states are the same as most other projects we've done- Title, Game Over, and play, but there's an additional variable called "Play State" which controls whether we're in the shop or a wave. This is because we still want the player to be able to move around and shoot during the shop, so they can reposition themselves and get a better feel for their controls, which eventually may be upgraded and thus change between waves. 
+
+Speaking of the waves, they're controlled rather simplistically at the moment, although we plan to make things more advanced after the demo. For now, every wave the interval between enemy spawns decreases by a tenth of a second, down to a minimum of .5 at wave 10 and beyond. The enemies spawned each waves works in a similar fashion, although the rate of growth increases until wave 10, at which point a new enemy is added every wave indefinitely. Eventually, we're going to replace these formulas with linearly interpolated ones, but for now this is where we're at.
 ### b) Michael (input and player behavior)
 TODO: Michael
 ### c) Faris (enemy behavior and collision)
