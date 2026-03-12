@@ -37,7 +37,7 @@ Press/Click/Type:
 - When talking about collision show what happens when shooting the enemies by left-clicking the mouse -> response the enemy dies after 3 hits 
 - Then show player enemey collisions by standing still and letting the enemies kill the player -> player should die and the gameover screen should display 
 ## 4) Architecture Map
-TODO: Mitchell
+Pull up associated PDFs
 
 ## 5) Reliability Checklist
 - Pull any new changes and confirm the game launches without issue 
