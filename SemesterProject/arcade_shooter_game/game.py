@@ -185,9 +185,10 @@ class Game:
                 y = random.uniform(self.playfield.top, self.playfield.bottom)
 
         pos = pygame.Vector2(x, y)
-        #For now, always spawn a chaser. Future waves can pick different template names based on wave
-        template = self.enemy_templates["chaser"]
-        enemy = spawn_from_template(template, pos, self.player)
+        #Temporary: randomly pick an enemy type for testing
+        name = random.choice(["chaser", "archer", "random"])
+        template = self.enemy_templates[name]
+        enemy = spawn_from_template(template, pos, self.player, self.playfield)
         self.all_enemies.append(enemy)
         self.all_living.append(enemy)
         self.all_things.append(enemy)

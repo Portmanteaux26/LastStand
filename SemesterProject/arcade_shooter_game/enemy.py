@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 import pygame
 import json
 import os
+import random
+import math
 from dataclasses import dataclass, field
 
 #This will encompass all enemies. Their behaviors will be defined by individual values
@@ -24,6 +26,7 @@ class Enemy(Living):
     target : Living
    
     def __init__(self, pos: pygame.Vector2, target: Living,
+                 playfield: pygame.Rect,
                  color: pygame.Color = pygame.Color("#bf616a"),
                  move_style: Movement_styles = Movement_styles.MOVEMENT_CHASER,
                  speed: float = 120.0, health: int = 1,
@@ -36,6 +39,7 @@ class Enemy(Living):
         self._base_color = color
         self._hit_flash_timer = 0.0
         self.target = target
+        self.playfield = playfield
         self.move_style = move_style
         self.speed = speed
         self.health = health
@@ -45,6 +49,10 @@ class Enemy(Living):
         self.point_cost = point_cost
         self.movement_min_dist = movement_min_dist
         self.movement_max_dist = movement_max_dist
+
+        angle = random.uniform(0, 2 * math.pi)
+        self._random_dir = pygame.Vector2(math.cos(angle), math.sin(angle))
+        self._random_timer = random.uniform(0.5, 1.5)
 
     def update(self, dt: float) -> None:
         super().update(dt)
@@ -62,18 +70,40 @@ class Enemy(Living):
             #Shy
             case Movement_styles.MOVEMENT_SHY:
                 pass
-            #Goldilocks
-            case Movement_styles.MOVEMENT_GOLDILOCKS:
-                pass
+            #Archer — stay within a distance band from the target
+            case Movement_styles.MOVEMENT_ARCHER:
+                direction = self.target.shape.position - self.shape.position
+                dist = direction.length()
+                if dist > 0:
+                    direction.normalize_ip()
+                if dist > self.movement_max_dist:
+                    self.shape.position += direction * self.speed * dt
+                elif dist < self.movement_min_dist:
+                    self.shape.position -= direction * self.speed * dt
             #Bouncer
             case Movement_styles.MOVEMENT_BOUNCER:
                 pass
-            #Random
+            #Random — teleport to a random spot, avoiding the player
             case Movement_styles.MOVEMENT_RANDOM:
-                pass
+                self._random_timer -= dt
+                if self._random_timer <= 0:
+                    r = self.shape.radius
+                    min_player_dist = 80.0
+                    for _ in range(20):
+                        x = random.uniform(self.playfield.left + r, self.playfield.right - r)
+                        y = random.uniform(self.playfield.top + r, self.playfield.bottom - r)
+                        candidate = pygame.Vector2(x, y)
+                        if (candidate - self.target.shape.position).length_squared() >= min_player_dist ** 2:
+                            break
+                    self.shape.position = candidate
+                    self._random_timer = random.uniform(1.0, 2.5)
             #Stationary
             case Movement_styles.MOVEMENT_STATIONARY:
                 pass 
+
+        r = self.shape.radius
+        self.shape.position.x = max(self.playfield.left + r, min(self.playfield.right - r, self.shape.position.x))
+        self.shape.position.y = max(self.playfield.top + r, min(self.playfield.bottom - r, self.shape.position.y))
 
 #Default path to the enemies json file
 _ENEMIES_FILE = os.path.join(os.path.dirname(__file__), "enemies.json")
@@ -105,5 +135,5 @@ def load_enemies(path: str = _ENEMIES_FILE) -> dict[str, dict]:
     return templates
 
 #Creates an Enemy instance from a loaded template
-def spawn_from_template(template: dict, pos: pygame.Vector2, target: Living) -> Enemy:
-    return Enemy(pos, target, **template)
+def spawn_from_template(template: dict, pos: pygame.Vector2, target: Living, playfield: pygame.Rect) -> Enemy:
+    return Enemy(pos, target, playfield, **template)
