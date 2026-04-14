@@ -11,6 +11,7 @@ class Action(Enum):
     SHOOT      = auto()
     PAUSE      = auto()
     CONFIRM    = auto()
+    SELECT     = auto()
 
 DEFAULT_BINDINGS: dict[Action, list[int]] = {
     Action.MOVE_UP:    [pygame.K_w, pygame.K_UP],
@@ -20,6 +21,7 @@ DEFAULT_BINDINGS: dict[Action, list[int]] = {
     Action.SHOOT:      [pygame.K_SPACE, pygame.K_j],
     Action.PAUSE:      [pygame.K_ESCAPE],
     Action.CONFIRM:    [pygame.K_SPACE, pygame.K_RETURN],
+    Action.SELECT:     [pygame.K_e]
 }
 
 class InputManager:
