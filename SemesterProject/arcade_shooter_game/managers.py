@@ -4,24 +4,26 @@ import pygame
 
 
 class Action(Enum):
-    MOVE_UP    = auto()
-    MOVE_DOWN  = auto()
-    MOVE_LEFT  = auto()
-    MOVE_RIGHT = auto()
-    SHOOT      = auto()
-    PAUSE      = auto()
-    CONFIRM    = auto()
-    SELECT     = auto()
+    MOVE_UP     = auto()
+    MOVE_DOWN   = auto()
+    MOVE_LEFT   = auto()
+    MOVE_RIGHT  = auto()
+    SHOOT       = auto()
+    PAUSE       = auto()
+    CONFIRM     = auto()
+    SELECT      = auto()
+    DASH        = auto()
 
 DEFAULT_BINDINGS: dict[Action, list[int]] = {
-    Action.MOVE_UP:    [pygame.K_w, pygame.K_UP],
-    Action.MOVE_DOWN:  [pygame.K_s, pygame.K_DOWN],
-    Action.MOVE_LEFT:  [pygame.K_a, pygame.K_LEFT],
-    Action.MOVE_RIGHT: [pygame.K_d, pygame.K_RIGHT],
-    Action.SHOOT:      [pygame.K_SPACE, pygame.K_j],
-    Action.PAUSE:      [pygame.K_ESCAPE],
-    Action.CONFIRM:    [pygame.K_SPACE, pygame.K_RETURN],
-    Action.SELECT:     [pygame.K_e]
+    Action.MOVE_UP:     [pygame.K_w, pygame.K_UP],
+    Action.MOVE_DOWN:   [pygame.K_s, pygame.K_DOWN],
+    Action.MOVE_LEFT:   [pygame.K_a, pygame.K_LEFT],
+    Action.MOVE_RIGHT:  [pygame.K_d, pygame.K_RIGHT],
+    Action.SHOOT:       [pygame.K_SPACE, pygame.K_j],
+    Action.PAUSE:       [pygame.K_ESCAPE],
+    Action.CONFIRM:     [pygame.K_SPACE, pygame.K_RETURN],
+    Action.SELECT:      [pygame.K_e],
+    Action.DASH:        [pygame.K_LSHIFT, pygame.K_RSHIFT]
 }
 
 class InputManager:

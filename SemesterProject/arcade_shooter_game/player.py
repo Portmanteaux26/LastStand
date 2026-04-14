@@ -23,19 +23,61 @@ class Player(Living):
         self.damage_cooldown : float = 0.0
         self.damage_cooldown_time : float = .25  # seconds of invincibility after a hit
 
+        # dash
+        self._dash_speed : float = 1600.0        # peak velocity during dash
+        self._dash_duration : float = 0.06       # how long the dash lasts (seconds)
+        self._dash_invuln_time : float = 0.12    # how long invuln lasts (can exceed dash duration)
+        self._dash_cooldown_time : float = 0.6   # minimum gap between dashes (seconds)
+        self._dash_timer : float = 0.0           # > 0 while currently dashing
+        self._dash_cooldown : float = 0.0        # > 0 while on cooldown
+        self._dash_direction : pygame.Vector2 = pygame.Vector2(0, -1)  # last known facing dir
+
     def update(self, dt: float) -> None:
         super().update(dt)
         self._shoot_timer = max(0.0, self._shoot_timer - dt)
+        self._dash_cooldown = max(0.0, self._dash_cooldown - dt)
+
         if self.damage_cooldown > 0:
             self.damage_cooldown -= dt
-        # basic feedback for damage cooldown period
-        self.shape.color = pygame.Color("#ffffff") if self.damage_cooldown > 0 else self._base_color
+
         move_vec = self.input.movement_vector()
-        self.velocity += move_vec * self.acceleration * dt
-        self.velocity *= self.friction
-        if self.velocity.length_squared() > self.max_speed ** 2:
-            self.velocity.scale_to_length(self.max_speed)
-        self.shape.position += self.velocity * dt
+
+        # keep _dash_direction in sync with actual movement so the dash
+        # always fires in the direction the player last walked
+        if move_vec.length_squared() > 0:
+            self._dash_direction = pygame.Vector2(move_vec)
+
+        # --- initiate dash ---
+        if (self.input.just_pressed(Action.DASH)
+                and self._dash_cooldown <= 0.0
+                and self._dash_timer <= 0.0):
+            self._dash_timer = self._dash_duration
+            self._dash_cooldown = self._dash_cooldown_time
+            self.velocity = self._dash_direction * self._dash_speed
+            # grant invincibility for the full dash window
+            self.damage_cooldown = max(self.damage_cooldown, self._dash_invuln_time)
+
+        # --- tick active dash ---
+        if self._dash_timer > 0.0:
+            self._dash_timer -= dt
+            # lock out friction and acceleration so the burst carries through
+            self.shape.position += self.velocity * dt
+        else:
+            # normal movement
+            self.velocity += move_vec * self.acceleration * dt
+            self.velocity *= self.friction
+            if self.velocity.length_squared() > self.max_speed ** 2:
+                self.velocity.scale_to_length(self.max_speed)
+            self.shape.position += self.velocity * dt
+
+        # --- colour feedback ---
+        dashing = self._dash_timer > 0.0
+        if dashing:
+            self.shape.color = pygame.Color("#aaddff")   # blue-white flash while dashing
+        elif self.damage_cooldown > 0:
+            self.shape.color = pygame.Color("#ffffff")   # white flash while hurt
+        else:
+            self.shape.color = self._base_color
 
         # clamp to playfield, accounting for radius
         r = self.shape.radius
