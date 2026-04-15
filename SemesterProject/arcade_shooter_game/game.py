@@ -8,7 +8,7 @@ from arcade_shooter_game.things import *
 from arcade_shooter_game.enums import *
 from arcade_shooter_game.player import *
 from arcade_shooter_game.enemy import *
-from arcade_shooter_game.managers import InputManager, Action
+from arcade_shooter_game.managers import InputManager, AudioManager, Action
 
 
 @dataclass(frozen=True)
@@ -75,6 +75,7 @@ class Game:
         self.wave_enemy_cap = len(self.wave_roster)
 
         self.input = InputManager()
+        self.audio = AudioManager()
 
         self.player = Player(self.playfield.center, self.input, self.playfield, self.palette.player)
         self.all_living.append(self.player)
@@ -123,6 +124,7 @@ class Game:
             self._reset_game(keep_state=True)
             self.state = "play"
             self.play_state = "wave"
+            # self.audio.play_loop("background")
 
         if self.state == "play":
             # Spawn enemies on a timer, up to the wave cap
@@ -139,6 +141,7 @@ class Game:
                     print("setting play state to shop")
                     self.play_state = "shop"
                     self.shop_timer = 2
+                    self.audio.play("round_win")
                 # Eventually, shop will contain upgrades you can select. For now, we just count down a five second timer to break up the waves.
             if self.play_state == "shop":
                 self.shop_timer -= dt
@@ -216,11 +219,14 @@ class Game:
                 self._shake_timer = self._shake_duration
                 self.player.health -= enemy.contact_damage
                 self.player.damage_cooldown = self.player.damage_cooldown_time
+                self.audio.play("player_damage")
                 break  # Only one hit per cooldown window
 
         # Player dies when health reaches 0
         if self.player.health <= 0:
             self._shake_timer = 0.0
+            self.audio.stop_loop()
+            self.audio.play("game_over")
             self.state = "gameover"
 
     def _check_projectile_collisions(self) -> None:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 from enum import Enum, auto
+from pathlib import Path
 import pygame
 
 
@@ -99,3 +100,44 @@ class InputManager:
 
         self._just_pressed  = self._held  - prev_held
         self._just_released = prev_held   - self._held
+
+
+_SOUND_DIR = Path(__file__).resolve().parent.parent / "audio"
+_SUPPORTED_EXTENSIONS = (".mp3")
+
+
+class AudioManager:
+    """
+    Loads sound files from the audio/ directory and exposes play() / play_loop().
+    Missing files are silently ignored so the game runs without audio assets.
+    """
+
+    def __init__(self) -> None:
+        self._sounds: dict[str, pygame.mixer.Sound] = {}
+        self._loop_channel: pygame.mixer.Channel | None = None
+        self._load_all()
+
+    def _load_all(self) -> None:
+        if not _SOUND_DIR.is_dir():
+            return
+        for ext in _SUPPORTED_EXTENSIONS:
+            for path in _SOUND_DIR.glob(f"*{ext}"):
+                name = path.stem
+                if name not in self._sounds:
+                    self._sounds[name] = pygame.mixer.Sound(str(path))
+
+    def play(self, name: str) -> None:
+        sound = self._sounds.get(name)
+        if sound is not None:
+            sound.play()
+
+    def play_loop(self, name: str) -> None:
+        self.stop_loop()
+        sound = self._sounds.get(name)
+        if sound is not None:
+            self._loop_channel = sound.play(loops=-1)
+
+    def stop_loop(self) -> None:
+        if self._loop_channel is not None:
+            self._loop_channel.stop()
+            self._loop_channel = None
