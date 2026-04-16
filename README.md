@@ -14,7 +14,8 @@ python main.py
 | WASD / Arrow Keys  | Move |
 | Mouse              | Aim |
 | Left Click / Space | Shoot |
-| Space              | Start / Confirm |
+| E                  | Select upgrade |
+| Space              | Start game |
 | Escape             | Quit |
 
 ## Goal
