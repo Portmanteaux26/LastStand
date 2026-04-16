@@ -182,9 +182,24 @@ class Game:
                     self.interactables.append(upgrade_1)
                     self.interactables.append(upgrade_2)
                 self.shop_timer -= dt
+
+                # Select upgrade
+                if self.input.just_pressed(Action.SELECT):
+                    for i, interactable in enumerate(self.interactables):
+                        shape = interactable.shape
+
+                        if shape.shape == 0:
+                            rect = pygame.Rect(0, 0, shape.width, shape.height)
+                            rect.center = shape.position
+
+                            if rect.collidepoint(self.player.shape.position):
+                                self.trigger_interactable(i)
+                                break
+
                 # This will be true if the player has interacted with one of the shop's interactables
                 if self.choice_made:
                     self.shop_timer = 0
+                    self.choice_made = False
 
 
 
@@ -352,13 +367,15 @@ class Game:
         if wave < 10:
             return 1.5 - (wave * 0.1)
         return 0.5
-    
-    def trigger_interactable(self, index : int):
-        #Index represents the index in interactables[] of the interactable we're looking at
-        self.interactables[index].interaction(self.player)
-        if isinstance(self.interactables[index],ShopCard):
-            if not self.interactables[index].upgrade.repeatable:
-                self.upgrade_pool.remove(self.interactables[index].upgrade)
+
+    def trigger_interactable(self, index: int):
+        interactable = self.interactables[index]
+        interactable.interaction(self.player)
+
+        if isinstance(interactable, ShopCard):
+            if not interactable.upgrade[1]["repeatable"]:
+                del self.upgrade_pool[interactable.upgrade[0]]
+
         del self.interactables[index]
         self.choice_made = True
 

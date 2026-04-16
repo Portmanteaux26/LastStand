@@ -19,16 +19,21 @@ class ShopCard(Interactable):
         self.upgrade = upgrade
         self.interacted = False
 
-    def interaction(self, player : Player):
+    def interaction(self, player: Player):
         if not self.interacted:
-            # On interaction we need to read and apply all the values associated with the card to the player.
-            player.max_health = max(1,self.upgrade.max_health + player.max_health)
-            player.speed = max(100,self.upgrade.speed + player.speed)
-            player.shoot_cooldown = max(.01, self.upgrade.bullet_cd * player.shoot_cooldown)
-            player.bullet_damage = max(1, self.upgrade.damage + player.bullet_damage)
-            player.health = min(player.max_health, self.upgrade.healing + player.health)
+            data = self.upgrade[1]
+
+            player.max_health = max(1, player.max_health + data["max_health"])
+            player.max_speed = max(1000, player.max_speed + data["speed"])
+            player.shoot_cooldown = max(.01, player.shoot_cooldown * data["bullet_cd"])
+            player.bullet_damage = max(1, player.bullet_damage + data["damage"])
+            player.health = min(player.max_health, player.health + data["healing"])
+
+            self.interacted = True
         else:
             print("Hey this one has already been interacted with")
+
+
 class Button(Interactable):
     def interaction(self, player: Player):
         print("This thing was interacted with")
