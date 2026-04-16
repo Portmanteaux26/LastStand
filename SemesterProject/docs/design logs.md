@@ -11,3 +11,9 @@
 - wired one-shot effects to game events: player hit, round win, game over
 - added a looping channel for background music, stopped on game over
   
+
+### shop
+- Fleshed out the shop state so it's actually functional
+  - Added "shop.py" and "upgrades.json" to control the loading of upgrades and store precreated upgrade cards
+  - Upgrades can effect all sorts of player stats, and can be repeatable (will show up in upgrade pool again after being taken) or not (will disappear after being taken once)
+  - Upgrades are displayed to the player as a pair of "cards" which can be taken using the interact button implemented this version
