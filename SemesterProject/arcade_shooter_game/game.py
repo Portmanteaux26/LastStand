@@ -356,6 +356,9 @@ class Game:
     def trigger_interactable(self, index : int):
         #Index represents the index in interactables[] of the interactable we're looking at
         self.interactables[index].interaction(self.player)
+        if isinstance(self.interactables[index],ShopCard):
+            if not self.interactables[index].upgrade.repeatable:
+                self.upgrade_pool.remove(self.interactables[index].upgrade)
         del self.interactables[index]
         self.choice_made = True
 
