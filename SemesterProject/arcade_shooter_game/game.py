@@ -156,7 +156,7 @@ class Game:
                     print("setting play state to shop")
                     self.play_state = "shop"
                     self.shop_start = True
-                    self.shop_timer = 15
+                    self.shop_timer = 10
                     self.audio.play("round_win")
                 # Eventually, shop will contain upgrades you can select. For now, we just count down a five second timer to break up the waves.
             if self.play_state == "shop":
@@ -383,7 +383,7 @@ class Game:
                                 color=self.palette.text)
         elif self.state == "play":
             if self.play_state == "shop":
-                self._draw_centered(f"Choose one upgrade or heal for 10% of your maximum HP.",
+                self._draw_centered(f"Choose an upgrade.",
                                     y=50, color=self.palette.text)
                 self._draw_centered(f"{self.shop_timer:.1f} seconds until next wave.",
                                     y=80, color=self.palette.text)
