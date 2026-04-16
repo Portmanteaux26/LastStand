@@ -32,7 +32,7 @@
         "color": "#ebcb8b",
         "move_style": 4,
         "speed": 140.0,
-        "health": 6,
+        "health": 1,
         "radius": 10,
         "contact_damage": 1,
         "ranged_damage": 0,

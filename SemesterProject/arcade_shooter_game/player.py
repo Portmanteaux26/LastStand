@@ -16,10 +16,11 @@ class Player(Living):
         self.acceleration = 20000.0
         self.friction = 0.5
         self.max_speed = 1000.0
-        self._shoot_cooldown = 0.15
+        self.shoot_cooldown = 0.15
         self._shoot_timer = 0.0
         self.health = 10
         self.max_health = 10
+        self.bullet_damage = 1
         self.damage_cooldown : float = 0.0
         self.damage_cooldown_time : float = .25  # seconds of invincibility after a hit
 
@@ -87,7 +88,7 @@ class Player(Living):
     def shoot(self):
         if self._shoot_timer > 0.0:
             return None
-        self._shoot_timer = self._shoot_cooldown
+        self._shoot_timer = self.shoot_cooldown
         aim = self.input.aim_vector(self.shape.position, self.playfield)
         bullet_shape = ShapeContainer(radius=5, position=pygame.Vector2(self.shape.position), color=pygame.Color("#ffffff"))
-        return Projectile(internal_shape=bullet_shape, hostile=False, damage=1, lifespan=2.0, direction=aim, speed=700.0)
+        return Projectile(internal_shape=bullet_shape, hostile=False, damage = self.bullet_damage, lifespan=2.0, direction=aim, speed=700.0)

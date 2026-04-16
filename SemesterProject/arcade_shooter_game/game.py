@@ -8,6 +8,8 @@ from arcade_shooter_game.things import *
 from arcade_shooter_game.enums import *
 from arcade_shooter_game.player import *
 from arcade_shooter_game.enemy import *
+from arcade_shooter_game.shop import *
+from arcade_shooter_game.interactables import *
 from arcade_shooter_game.managers import InputManager, AudioManager, Action
 
 
@@ -24,6 +26,10 @@ class Palette:
     particle: pygame.Color = field(default_factory=lambda: pygame.Color("#a3be8c"))
     wall: pygame.Color = field(default_factory=lambda: pygame.Color("#4c566a"))
 
+    card: pygame.Color = field(default_factory=lambda: pygame.Color("#e7e3d2"))
+    card_border: pygame.Color = field(default_factory=lambda: pygame.Color("#d6a062"))
+    card_text: pygame.Color = field(default_factory=lambda: pygame.Color("#000000"))
+
 
 class Game:
     fps = 60
@@ -35,6 +41,7 @@ class Game:
         self.palette = Palette()
 
         self.screen = pygame.display.set_mode((self.SCREEN_W, self.SCREEN_H))
+        self.card_font = pygame.font.SysFont(None,20)
         self.font = pygame.font.SysFont(None, 22)
         self.big_font = pygame.font.SysFont(None, 40)
 
@@ -51,10 +58,12 @@ class Game:
         self.state = "title"  # title | play | gameover
         # additional states used to control behavior of play, since we still want to control player movement, collisions, etc. while in the shop
         self.play_state = "wave"  # wave | shop
+        self.choice_made = False
         self.all_things: list[Thing] = []
         self.all_living: list[Living] = []
         self.all_enemies: list[Enemy] = []
         self.all_projectiles: list[Projectile] = []
+        self.interactables: list[Interactable] = []
 
         self._shake_timer = 0.0
         self._shake_duration = 0.2
@@ -74,6 +83,10 @@ class Game:
         self.wave_roster = self._build_wave_roster(self.wave)
         self.wave_enemy_cap = len(self.wave_roster)
 
+        # Load upgrade templates from json
+        self.upgrade_templates = load_upgrades()
+        self.upgrade_pool = self.upgrade_templates
+
         self.input = InputManager()
         self.audio = AudioManager()
 
@@ -88,6 +101,7 @@ class Game:
         self.all_enemies: list[Enemy] = []
         self.all_projectiles: list[Projectile] = []
 
+        self.shop_start = False
         self.play_state = "wave"
         self.spawn_timer = 0.0
         self.score = 0
@@ -95,6 +109,7 @@ class Game:
         self.enemies_spawned = 0
         self.shop_timer = 0.0
         self.wave_roster = self._build_wave_roster(self.wave)
+        self.upgrade_pool = self.upgrade_templates
         self.wave_enemy_cap = len(self.wave_roster)
 
         self.player = Player(self.playfield.center, self.input, self.playfield, self.palette.player)
@@ -140,12 +155,41 @@ class Game:
                 if self.enemies_spawned >= self.wave_enemy_cap and len(self.all_enemies) == 0:
                     print("setting play state to shop")
                     self.play_state = "shop"
-                    self.shop_timer = 2
+                    self.shop_start = True
+                    self.shop_timer = 15
                     self.audio.play("round_win")
                 # Eventually, shop will contain upgrades you can select. For now, we just count down a five second timer to break up the waves.
             if self.play_state == "shop":
+                if self.shop_start:
+                    self.shop_start = False
+                    print("Starting shop!")
+                    # Spawn in interactable "cards"
+                    # First, we find the upgrades that can be used at this wave
+                    valid_upgrades = {}
+                    for k, v in self.upgrade_pool.items():
+                        if v["min_wave"] <= self.wave:
+                            valid_upgrades[k] = v
+                    # Then, we grab two random ones.
+                    chosen_upgrades = random.sample(list(valid_upgrades.items()),2)
+                    upgrade_1 = ShopCard(chosen_upgrades[0])
+                    upgrade_2 = ShopCard(chosen_upgrades[1])
+                    print(upgrade_1.upgrade)
+                    print(upgrade_2.upgrade)
+                    upgrade_1.shape.position = (self.playfield.centerx-150,self.playfield.centery+50)
+                    upgrade_1.shape.color = self.palette.card
+                    upgrade_2.shape.position = (self.playfield.centerx+150,self.playfield.centery+50)
+                    upgrade_2.shape.color = self.palette.card
+                    self.interactables.append(upgrade_1)
+                    self.interactables.append(upgrade_2)
                 self.shop_timer -= dt
+                # This will be true if the player has interacted with one of the shop's interactables
+                if self.choice_made:
+                    self.shop_timer = 0
+
+
+
                 if self.shop_timer <= 0:
+                    self.interactables = []
                     self.wave += 1
                     self.enemies_spawned = 0
                     self.spawn_interval = self._get_spawn_interval(self.wave)
@@ -308,6 +352,12 @@ class Game:
         if wave < 10:
             return 1.5 - (wave * 0.1)
         return 0.5
+    
+    def trigger_interactable(self, index : int):
+        #Index represents the index in interactables[] of the interactable we're looking at
+        self.interactables[index].interaction(self.player)
+        del self.interactables[index]
+        self.choice_made = True
 
     def draw(self) -> None:
         self.screen.fill(self.palette.hud)
@@ -323,18 +373,43 @@ class Game:
 
         if self.state == "title":
             self._draw_centered("Press Space to Start", y=self.playfield.centery, color=self.palette.text)
+            return
         elif self.state == "gameover":
             self._draw_centered("Game Over — Press Space", y=self.playfield.centery, color=self.palette.text)
             self._draw_centered(f"Highest Wave Reached: {self.wave}", y=self.playfield.centery + 40,
                                 color=self.palette.text)
-        if self.play_state == "shop":
-            self._draw_centered(f"Dance Break! {self.shop_timer:.1f} seconds until next wave.",
-                                y=self.playfield.centery, color=self.palette.text)
-        if self.play_state == "wave":
-            self._draw_text(f"Wave: {self.wave}", (10, 10), color=self.palette.text)
-            self._draw_text(f"Enemies Left: {(self.wave_enemy_cap - self.enemies_spawned) + len(self.all_enemies)}",
-                            (10, 30), color=self.palette.text)
-            self._draw_text(f"Health: {self.player.health}", (10, 50), color=self.palette.text)
+        elif self.state == "play":
+            if self.play_state == "shop":
+                self._draw_centered(f"Choose one upgrade or heal for 10% of your maximum HP.",
+                                    y=50, color=self.palette.text)
+                self._draw_centered(f"{self.shop_timer:.1f} seconds until next wave.",
+                                    y=80, color=self.palette.text)
+                for interactable in self.interactables:
+                    obj = interactable.shape
+                    pos = pygame.Vector2(obj.position) + shake_offset
+                    match obj.shape:
+                        case 0:
+                            if isinstance(interactable, ShopCard):
+                                rect = pygame.Rect(0, 0, obj.width+15, obj.height+15)
+                                rect.center = pos
+                                pygame.draw.rect(self.screen, self.palette.card_border, rect)
+                                rect.width-=15
+                                rect.height-=15
+                                rect.center = pos
+                                pygame.draw.rect(self.screen, obj.color, rect)
+                                self._draw_text_center_align((interactable.upgrade[1]["display_name"]),(pos.x,pos.y+15-obj.height/2),self.palette.card_text)
+                                self._draw_multiline((interactable.upgrade[1]["desc"]),(pos.x-obj.width/2,pos.y),self.palette.card_text)
+
+                            
+                        case 1:
+                            pygame.draw.circle(self.screen, obj.color, pos, obj.radius)
+                    
+
+            if self.play_state == "wave":
+                self._draw_text(f"Wave: {self.wave}", (10, 10), color=self.palette.text)
+                self._draw_text(f"Enemies Left: {(self.wave_enemy_cap - self.enemies_spawned) + len(self.all_enemies)}",
+                                (10, 30), color=self.palette.text)
+                self._draw_text(f"Health: {self.player.health}", (10, 50), color=self.palette.text)
         for thing in self.all_things:
             obj = thing.shape
             pos = pygame.Vector2(obj.position) + shake_offset
@@ -349,6 +424,18 @@ class Game:
     def _draw_text(self, text: str, pos: tuple[int, int], color: pygame.Color) -> None:
         s = self.font.render(text, True, color)
         self.screen.blit(s, pos)
+
+    def _draw_text_center_align(self, text: str, pos: tuple[int, int], color: pygame.Color) -> None:
+        s = self.font.render(text, True, color)
+        self.screen.blit(s, (pos[0]-s.get_width()/2,pos[1]))
+
+    #Draws a multiline with the topleft of the text at pos
+    def _draw_multiline(self, text: str, pos: tuple[int, int], color: pygame.Color) -> None:
+        lines = []
+        for i, line in enumerate(text.split('\n')):
+            txt_surf = self.card_font.render(line, True, color)
+            self.screen.blit(txt_surf, (pos[0], pos[1]+20*i))
+
 
     def _draw_centered(self, text: str, *, y: int, color: pygame.Color) -> None:
         s = self.big_font.render(text, True, color)
