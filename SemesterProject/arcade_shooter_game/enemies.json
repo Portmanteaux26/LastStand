@@ -14,7 +14,7 @@
         "movement_max_dist": 0.0
     },
     {
-        "name": "archer",
+        "name": "elusive",
         "color": "#a3be8c",
         "move_style": 2,
         "speed": 100.0,
@@ -28,17 +28,18 @@
         "movement_max_dist": 200.0
     },
     {
-        "name": "random",
+        "name": "mage",
         "color": "#ebcb8b",
         "move_style": 4,
         "speed": 140.0,
         "health": 1,
         "radius": 10,
         "contact_damage": 1,
-        "ranged_damage": 0,
+        "ranged_damage": 1,
         "attack_range": 0.0,
         "point_cost": 120,
         "movement_min_dist": 0.0,
-        "movement_max_dist": 0.0
+        "movement_max_dist": 0.0,
+        "shoot_cooldown": 0.8
     }
 ]

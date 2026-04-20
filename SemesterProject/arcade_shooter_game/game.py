@@ -222,6 +222,13 @@ class Game:
                     self.all_living.append(new_proj)
                     self.all_things.append(new_proj)
 
+            for enemy in self.all_enemies:
+                enemy_proj = enemy.shoot()
+                if enemy_proj is not None:
+                    self.all_projectiles.append(enemy_proj)
+                    self.all_living.append(enemy_proj)
+                    self.all_things.append(enemy_proj)
+
             expired = [p for p in self.all_projectiles if
                        p.lifespan <= 0 or not self.playfield.collidepoint(p.shape.position)]
             for p in expired:
@@ -327,6 +334,36 @@ class Game:
             self.all_enemies.remove(enemy)
             self.all_living.remove(enemy)
             self.all_things.remove(enemy)
+
+        # Check hostile (enemy) bullets against the player
+        if self.player.damage_cooldown <= 0:
+            for proj in list(self.all_projectiles):
+                if not proj.hostile:
+                    continue
+                p_pos = proj.shape.position
+                p_r = proj.shape.radius
+                pl_pos = self.player.shape.position
+                pl_r = self.player.shape.radius
+                dist_sq = (p_pos - pl_pos).length_squared()
+                touch_dist = p_r + pl_r
+                if dist_sq <= touch_dist * touch_dist:
+                    self.player.health -= proj.damage
+                    self.player.damage_cooldown = self.player.damage_cooldown_time
+                    self._shake_timer = self._shake_duration
+                    self.audio.play("player_damage")
+                    if proj in self.all_projectiles:
+                        self.all_projectiles.remove(proj)
+                    if proj in self.all_living:
+                        self.all_living.remove(proj)
+                    if proj in self.all_things:
+                        self.all_things.remove(proj)
+                    break
+
+            if self.player.health <= 0:
+                self._shake_timer = 0.0
+                self.audio.stop_loop()
+                self.audio.play("game_over")
+                self.state = "gameover"
 
     # ----Wave calculation methods
 
