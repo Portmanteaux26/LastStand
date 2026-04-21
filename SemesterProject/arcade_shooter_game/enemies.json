@@ -4,12 +4,12 @@
         "color": "#bf616a",
         "move_style": 0,
         "speed": 120.0,
-        "health": 12,
+        "health": 5,
         "radius": 12,
         "contact_damage": 1,
         "ranged_damage": 0,
         "attack_range": 0.0,
-        "point_cost": 100,
+        "point_cost": 50,
         "movement_min_dist": 0.0,
         "movement_max_dist": 0.0
     },
@@ -23,7 +23,7 @@
         "contact_damage": 1,
         "ranged_damage": 0,
         "attack_range": 0.0,
-        "point_cost": 150,
+        "point_cost": 100,
         "movement_min_dist": 100.0,
         "movement_max_dist": 200.0
     },
@@ -37,7 +37,7 @@
         "contact_damage": 1,
         "ranged_damage": 1,
         "attack_range": 0.0,
-        "point_cost": 120,
+        "point_cost": 200,
         "movement_min_dist": 0.0,
         "movement_max_dist": 0.0,
         "shoot_cooldown": 0.8

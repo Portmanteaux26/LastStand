@@ -142,9 +142,9 @@ class Game:
             # self.audio.play_loop("background")
 
         if self.state == "play":
+            self._shake_timer = max(0.0, self._shake_timer - dt)
             # Spawn enemies on a timer, up to the wave cap
             if self.play_state == "wave":
-                self._shake_timer = max(0.0, self._shake_timer - dt)
                 self.spawn_timer -= dt
                 if self.spawn_timer <= 0 and self.enemies_spawned < self.wave_enemy_cap:
                     self.spawn_timer = self.spawn_interval
@@ -437,10 +437,7 @@ class Game:
                                 color=self.palette.text)
         elif self.state == "play":
             if self.play_state == "shop":
-                self._draw_centered(f"Choose an upgrade.",
-                                    y=50, color=self.palette.text)
-                self._draw_centered(f"{self.shop_timer:.1f} seconds until next wave.",
-                                    y=80, color=self.palette.text)
+                
                 for interactable in self.interactables:
                     obj = interactable.shape
                     pos = pygame.Vector2(obj.position) + shake_offset
@@ -457,16 +454,22 @@ class Game:
                                 self._draw_text_center_align((interactable.upgrade[1]["display_name"]),(pos.x,pos.y+15-obj.height/2),self.palette.card_text)
                                 self._draw_multiline((interactable.upgrade[1]["desc"]),(pos.x-obj.width/2,pos.y),self.palette.card_text)
 
-                            
                         case 1:
                             pygame.draw.circle(self.screen, obj.color, pos, obj.radius)
-                    
+
+                bullets_per_second = 1/self.player.shoot_cooldown
+
+                self._draw_centered(f"Choose an upgrade.",
+                                    y=50, color=self.palette.text)
+                self._draw_centered(f"{self.shop_timer:.1f} seconds until next wave.",
+                                    y=80, color=self.palette.text)
+                self._draw_multiline(f"Health: {self.player.health}/{self.player.max_health}\nDamage: {self.player.bullet_damage}\nBullets/Second: {bullets_per_second:.2f}\nSpeed: {self.player.max_speed}",(5,5),self.palette.text)
 
             if self.play_state == "wave":
                 self._draw_text(f"Wave: {self.wave}", (10, 10), color=self.palette.text)
                 self._draw_text(f"Enemies Left: {(self.wave_enemy_cap - self.enemies_spawned) + len(self.all_enemies)}",
                                 (10, 30), color=self.palette.text)
-                self._draw_text(f"Health: {self.player.health}", (10, 50), color=self.palette.text)
+                self._draw_text(f"Health: {self.player.health}/{self.player.max_health}", (10, 50), color=self.palette.text)
         for thing in self.all_things:
             obj = thing.shape
             pos = pygame.Vector2(obj.position) + shake_offset

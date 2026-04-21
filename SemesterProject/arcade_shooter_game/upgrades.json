@@ -5,7 +5,7 @@
         "repeatable": true,
         "max_health": 1,
         "healing": 1,
-        "desc": "Increase max health by 1.\nHeal 1 HP.\nMay reappear after being taken."
+        "desc": "Increase max health by 1.\nRestore 1 HP.\nMay reappear after being taken."
     },
     {
         "name": "max_health_5",
@@ -20,6 +20,20 @@
         "max_health": 10,
         "healing": -10,
         "desc": "Increase max health by 10.\nLose 10 HP.",
+        "min_wave": 10
+    },
+    {
+        "name": "healing_repeatable",
+        "display_name" : "First Aid",
+        "repeatable": true,
+        "healing": 5,
+        "desc": "Restore 5 HP.\nMay reappear after being taken."
+    },
+    {
+        "name": "healing_full",
+        "display_name" : "Healing Rite",
+        "healing": 999,
+        "desc": "Restore 999 HP.",
         "min_wave": 10
     },
     {

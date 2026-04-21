@@ -16,7 +16,7 @@ class Player(Living):
         self.acceleration = 20000.0
         self.friction = 0.5
         self.max_speed = 1000.0
-        self.shoot_cooldown = 0.15
+        self.shoot_cooldown = 0.25
         self._shoot_timer = 0.0
         self.health = 10
         self.max_health = 10
