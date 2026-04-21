@@ -21,11 +21,12 @@
         "health": 8,
         "radius": 14,
         "contact_damage": 1,
-        "ranged_damage": 0,
-        "attack_range": 0.0,
+        "ranged_damage": 1,
+        "attack_range": 200.0,
         "point_cost": 100,
         "movement_min_dist": 100.0,
-        "movement_max_dist": 200.0
+        "movement_max_dist": 200.0,
+        "shoot_cooldown": 1.5
     },
     {
         "name": "mage",
@@ -40,6 +41,6 @@
         "point_cost": 200,
         "movement_min_dist": 0.0,
         "movement_max_dist": 0.0,
-        "shoot_cooldown": 0.8
+        "shoot_cooldown": 3.0
     }
 ]

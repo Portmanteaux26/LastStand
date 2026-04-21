@@ -55,11 +55,15 @@ class Enemy(Living):
 
         angle = random.uniform(0, 2 * math.pi)
         self._random_dir = pygame.Vector2(math.cos(angle), math.sin(angle))
-        self._random_timer = random.uniform(0.5, 1.5)
+        self._random_timer = random.uniform(2.0, 3.0)
 
     def shoot(self) -> Projectile | None:
         if self.shoot_cooldown <= 0 or self._shoot_timer > 0:
             return None
+        if self.attack_range > 0:
+            dist_sq = (self.target.shape.position - self.shape.position).length_squared()
+            if dist_sq > self.attack_range ** 2:
+                return None
         self._shoot_timer = self.shoot_cooldown
         direction = self.target.shape.position - self.shape.position
         if direction.length_squared() > 0:
@@ -121,7 +125,7 @@ class Enemy(Living):
                         if (candidate - self.target.shape.position).length_squared() >= min_player_dist ** 2:
                             break
                     self.shape.position = candidate
-                    self._random_timer = random.uniform(1.0, 2.5)
+                    self._random_timer = random.uniform(3.0, 5.0)
             #Stationary
             case Movement_styles.MOVEMENT_STATIONARY:
                 pass 
