@@ -317,6 +317,7 @@ class Game:
                     enemy.health -= 4
                     enemy._hit_flash_timer = 0.1
                     projectiles_to_remove.append(proj)
+                    self.audio.play("enemy_damage")
                     if enemy.health <= 0:
                         enemies_to_remove.append(enemy)
                         self.score += enemy.point_cost
