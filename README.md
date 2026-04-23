@@ -9,24 +9,22 @@
 **Requirements:**
 - Python 3.10 or higher
 
-**Installation:**
+**Quick Start:**
 
-1. Create a virtual environment:
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+```bash
+# Clone and navigate to repo
+git clone https://github.com/EverEggs/Comp323Project.git
+cd Comp323Project
 
-2. Install dependencies:
-   ```bash
-   cd SemesterProject
-   pip install -r requirements.txt
-   ```
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate
+# On Windows: venv\Scripts\activate
 
-3. Run the game:
-   ```bash
-   python main.py
-   ```
+# Install and run
+pip install -r requirements.txt
+python main.py
+```
 
 ## 3. Controls
 
