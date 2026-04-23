@@ -52,10 +52,10 @@
 ## 5. Credits
 
 **Audio Assets:**
-- `enemy_damage.mp3` - Enemy hit sound effect by aruscio28 ([Freesound.org](https://freesound.org/people/aruscio28/sounds/322640/), Creative Commons license)
-- `game_over.mp3` - Game over sound effect ([Pixabay](https://pixabay.com/sound-effects/film-special-effects-negative-beeps-6008/), Pixabay License)
-- `player_damage.mp3` - Player hit sound effect ([Pixabay](https://pixabay.com/sound-effects/film-special-effects-retro-hurt-2-236675/), Pixabay License)
-- `round_win.mp3` - Wave clear sound effect ([Pixabay](https://pixabay.com/sound-effects/film-special-effects-short-success-sound-glockenspiel-treasure-video-game-6346/), Pixabay License)
+- `enemy_damage.mp3` - "Hitmarker Sound Effect" by aruscio28 ([Freesound.org](https://freesound.org/people/aruscio28/sounds/322640/), Creative Commons license)
+- `game_over.mp3` - "negative_beeps" by themusicalnomad ([Pixabay](https://pixabay.com/sound-effects/film-special-effects-negative-beeps-6008/), Pixabay License)
+- `player_damage.mp3` - "Retro hurt 2" by Driken5482 ([Pixabay](https://pixabay.com/sound-effects/film-special-effects-retro-hurt-2-236675/), Pixabay License)
+- `round_win.mp3` - "Short Success Sound Glockenspiel Treasure Video Game" by FunWithSound ([Pixabay](https://pixabay.com/sound-effects/film-special-effects-short-success-sound-glockenspiel-treasure-video-game-6346/), Pixabay License)
 
 **Libraries & Tools:**
 - [Pygame](https://www.pygame.org/) - Game engine and rendering (LGPL v2.1)
