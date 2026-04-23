@@ -50,6 +50,7 @@ python main.py
 ## 5. Credits
 
 **Audio Assets:**
+- `bgm.mp3` - "The Great Beyond" by Orboram ([Freesound.org](https://freesound.org/people/Orboram/sounds/663683/), Creative Commons license)
 - `enemy_damage.mp3` - "Hitmarker Sound Effect" by aruscio28 ([Freesound.org](https://freesound.org/people/aruscio28/sounds/322640/), Creative Commons license)
 - `game_over.mp3` - "negative_beeps" by themusicalnomad ([Pixabay](https://pixabay.com/sound-effects/film-special-effects-negative-beeps-6008/), Pixabay License)
 - `player_damage.mp3` - "Retro hurt 2" by Driken5482 ([Pixabay](https://pixabay.com/sound-effects/film-special-effects-retro-hurt-2-236675/), Pixabay License)
