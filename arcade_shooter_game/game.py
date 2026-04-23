@@ -124,6 +124,12 @@ class Game:
             self.all_living.remove(proj)
             self.all_things.remove(proj)
 
+    def _circles_collide(self, pos1: pygame.Vector2, radius1: float, pos2: pygame.Vector2, radius2: float) -> bool:
+        """Check if two circles collide."""
+        dist_sq = (pos1 - pos2).length_squared()
+        touch_dist = radius1 + radius2
+        return dist_sq <= touch_dist * touch_dist
+
     def handle_event(self, event: pygame.event.Event) -> None:
 
         if event.type != pygame.KEYDOWN:
@@ -285,11 +291,7 @@ class Game:
         p_r = self.player.shape.radius
 
         for enemy in self.all_enemies:
-            e_pos = enemy.shape.position
-            e_r = enemy.shape.radius
-            dist_sq = (p_pos - e_pos).length_squared()
-            touch_dist = p_r + e_r
-            if dist_sq <= touch_dist * touch_dist:
+            if self._circles_collide(p_pos, p_r, enemy.shape.position, enemy.shape.radius):
                 # basic feedback for collision with enemy
                 self._shake_timer = self._shake_duration
                 self.player.health -= enemy.contact_damage
@@ -313,16 +315,10 @@ class Game:
             # Only player bullets hurt enemies
             if proj.hostile:
                 continue
-            p_pos = proj.shape.position
-            p_r = proj.shape.radius
             for enemy in self.all_enemies:
                 if enemy in enemies_to_remove:
                     continue
-                e_pos = enemy.shape.position
-                e_r = enemy.shape.radius
-                dist_sq = (p_pos - e_pos).length_squared()
-                touch_dist = p_r + e_r
-                if dist_sq <= touch_dist * touch_dist:
+                if self._circles_collide(proj.shape.position, proj.shape.radius, enemy.shape.position, enemy.shape.radius):
                     enemy.health -= 4
                     enemy._hit_flash_timer = 0.1
                     projectiles_to_remove.append(proj)
@@ -350,13 +346,7 @@ class Game:
             for proj in list(self.all_projectiles):
                 if not proj.hostile:
                     continue
-                p_pos = proj.shape.position
-                p_r = proj.shape.radius
-                pl_pos = self.player.shape.position
-                pl_r = self.player.shape.radius
-                dist_sq = (p_pos - pl_pos).length_squared()
-                touch_dist = p_r + pl_r
-                if dist_sq <= touch_dist * touch_dist:
+                if self._circles_collide(proj.shape.position, proj.shape.radius, self.player.shape.position, self.player.shape.radius):
                     self.player.health -= proj.damage
                     self.player.damage_cooldown = self.player.damage_cooldown_time
                     self._shake_timer = self._shake_duration
