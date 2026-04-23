@@ -50,7 +50,7 @@
 | Crash on launch | Mitchell narrates architecture from repo/IDE while Michael troubleshoots. Move on after 60 seconds if unresolved. |
 | Crash mid-demo | Restart to wave 1 and continue from the nearest segment. Treat it as a natural transition. |
 | Shop or upgrade bug | Mitchell narrates from code rather than live. |
-| Audio not working | Faris acknowledges it as a known open item and continues. |
+
 
 **Morning-of:** fresh run on the demo machine · confirm audio output · test wave 1 restart command · confirm enemies.json is on screen and readable.
 
