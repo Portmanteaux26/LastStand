@@ -147,7 +147,7 @@ class Game:
             self._reset_game(keep_state=True)
             self.state = "play"
             self.play_state = "wave"
-            # self.audio.play_loop("background")
+            self.audio.play_loop("bgm")
 
         if self.state == "play":
             self._shake_timer = max(0.0, self._shake_timer - dt)

@@ -115,7 +115,10 @@ class AudioManager:
     def __init__(self) -> None:
         self._sounds: dict[str, pygame.mixer.Sound] = {}
         self._loop_channel: pygame.mixer.Channel | None = None
+        self._volumes: dict[str, float] = {}  # Store per-sound volumes
         self._load_all()
+        # BGM is loud by default, reduce it to 60%
+        self.set_volume("bgm", 0.6)
 
     def _load_all(self) -> None:
         if not _SOUND_DIR.is_dir():
@@ -126,15 +129,26 @@ class AudioManager:
                 if name not in self._sounds:
                     self._sounds[name] = pygame.mixer.Sound(str(path))
 
+    def set_volume(self, name: str, volume: float) -> None:
+        """Set volume for a specific sound (0.0 to 1.0)."""
+        volume = max(0.0, min(1.0, volume))  # Clamp to 0-1
+        self._volumes[name] = volume
+        if name in self._sounds:
+            self._sounds[name].set_volume(volume)
+
     def play(self, name: str) -> None:
         sound = self._sounds.get(name)
         if sound is not None:
+            if name in self._volumes:
+                sound.set_volume(self._volumes[name])
             sound.play()
 
     def play_loop(self, name: str) -> None:
         self.stop_loop()
         sound = self._sounds.get(name)
         if sound is not None:
+            if name in self._volumes:
+                sound.set_volume(self._volumes[name])
             self._loop_channel = sound.play(loops=-1)
 
     def stop_loop(self) -> None:
