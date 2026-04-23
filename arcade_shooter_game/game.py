@@ -116,6 +116,14 @@ class Game:
         self.all_living.append(self.player)
         self.all_things.append(self.player)
 
+    def _clear_hostile_projectiles(self) -> None:
+        """Remove all enemy projectiles from the game."""
+        projectiles_to_remove = [p for p in self.all_projectiles if p.hostile]
+        for proj in projectiles_to_remove:
+            self.all_projectiles.remove(proj)
+            self.all_living.remove(proj)
+            self.all_things.remove(proj)
+
     def handle_event(self, event: pygame.event.Event) -> None:
 
         if event.type != pygame.KEYDOWN:
@@ -154,6 +162,7 @@ class Game:
                 print(len(self.all_enemies))
                 if self.enemies_spawned >= self.wave_enemy_cap and len(self.all_enemies) == 0:
                     print("setting play state to shop")
+                    self._clear_hostile_projectiles()
                     self.play_state = "shop"
                     self.shop_start = True
                     self.shop_timer = 10
