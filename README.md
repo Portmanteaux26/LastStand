@@ -16,10 +16,13 @@
 git clone https://github.com/EverEggs/Comp323Project.git
 cd Comp323Project
 
-# Create and activate virtual environment
+# setup Windows virtual environment
+py -m venv venv
+venv\Scripts\activate
+
+# setup Mac/Linux virtual environment
 python3 -m venv venv
 source venv/bin/activate
-# On Windows: venv\Scripts\activate
 
 # Install and run
 pip install -r requirements.txt
