@@ -58,7 +58,7 @@ Between waves, the game enters a Shop state. The player retains full movement an
 
 The core player goals established at the start of the project were:
 
-- Survive as many waves as possible — the score is simply the wave count reached.
+- Survive as many waves as possible, the score is simply the wave count reached.
 - Aim and destroy all enemies in each wave before being overwhelmed.
 - Use the upgrade shop strategically to build a character suited to the player's playstyle.
 - Master the dash mechanic to evade dangerous situations and navigate enemy clusters.
@@ -71,7 +71,7 @@ The core player goals established at the start of the project were:
 
 The game's entity model is built on a two-level abstract hierarchy. **Thing** is the foundational abstract class, providing every in-game object with a position (Vector2 of floats), colour (pygame.Color, defaulting to white), a bounding rectangle (pygame.Rect, defaulting to 32×32 pixels), and an optional multi-rect hitbox (list of pygame.Rect) for irregular shapes.
 
-**Living** extends Thing and represents any entity that has agency in the world. It adds an `update()` abstract method — allowing all living entities to be grouped into a single list and updated in one loop — along with a speed float (enabling hazards and slow effects to work uniformly across all entity types) and a health integer (−1 signals that health mechanics do not apply to this entity).
+**Living** extends Thing and represents any entity that has agency in the world. It adds an `update()` abstract method, allowing all living entities to be grouped into a single list and updated in one loop, along with a speed float (enabling hazards and slow effects to work uniformly across all entity types) and a health integer (−1 signals that health mechanics do not apply to this entity).
 
 | Class             | Parent        | Key Attributes / Methods                                                          |
 |-------------------|---------------|-----------------------------------------------------------------------------------|
@@ -95,13 +95,13 @@ Several design patterns were established to keep the codebase extensible and tea
 
 #### Objectives and Player Goals
 
-The primary objective is survival: the player's score equals the number of waves completed. Secondary objectives emerge naturally through the upgrade system — players develop implicit build strategies (e.g. prioritising speed to enable aggressive play, or health to create a tank archetype).
+The primary objective is survival: the player's score equals the number of waves completed. Secondary objectives emerge naturally through the upgrade system. Players develop implicit build strategies (e.g. prioritising speed to enable aggressive play, or health to create a tank archetype).
 
 #### Rules and Boundaries
 
 - The arena has fixed boundaries that the player and enemies cannot cross.
 - Enemies spawn from the four edges of the playfield; spawn intervals decrease as waves progress.
-- A wave is complete only when all enemies are destroyed — avoiding enemies prolongs and intensifies the wave.
+- A wave is complete only when all enemies are destroyed; avoiding enemies prolongs and intensifies the wave.
 - The player has a damage cooldown (invincibility window) after being hit, preventing instant multi-hits.
 - Shooting has a cooldown which can be decreased with upgrades.
 - The dash consumes a cooldown resource and provides a brief invincibility window independent of movement duration.
@@ -112,11 +112,11 @@ Conflict is generated through the wave scaling system: each wave increases the p
 
 #### Narrative Structure
 
-Last Stand uses a minimal implied narrative: the player is the last defender, the waves represent an endless assault, and the shop represents brief respite between engagements. There is no explicit story text — the narrative is entirely mechanical and emergent, consistent with the arcade genre.
+Last Stand uses a minimal implied narrative: the player is the last defender, the waves represent an endless assault, and the shop represents brief respite between engagements. There is no explicit story text; the narrative is entirely mechanical and emergent, consistent with the arcade genre.
 
 #### Outcome and End State
 
-The game ends when the player reaches 0 health. A Game Over screen displays the final wave count (score) and prompts the player to press Space to restart immediately from Wave 1. There is no win condition — the game is designed as an endless survival loop.
+The game ends when the player reaches 0 health. A Game Over screen displays the final wave count (score) and prompts the player to press Space to restart immediately from Wave 1. There is no win condition; the game is designed as an endless survival loop.
 
 ---
 
@@ -146,7 +146,7 @@ The codebase is split across five primary Python modules, each with a defined re
 | `managers.py` | Contains InputManager (keybindings, input polling, aim control) and AudioManager (sound loading, one-shot SFX, looping BGM).          |
 | `game.py`     | The central hub: state machine, main game loop, wave budget and spawning logic, collision detection, draw management, and shop state. |
 
-External data files `enemies.json` and `upgrades.json` serve as the content layer, fully decoupling enemy and upgrade definitions from the Python codebase. Adding a new enemy type requires only a JSON entry and an enum addition — no changes to spawning, collision, or draw logic.
+External data files `enemies.json` and `upgrades.json` serve as the content layer, fully decoupling enemy and upgrade definitions from the Python codebase. Adding a new enemy type requires only a JSON entry and an enum addition with no changes to spawning, collision, or draw logic.
 
 ### 5.3 Procedural Outline and Game Loop
 
@@ -161,7 +161,7 @@ Each frame, the game loop executes the following sequence:
 
 ### 5.4 Wave Scaling System
 
-Wave difficulty is governed by a points budget rather than a hardcoded enemy count. Wave 1 allocates 400 points; each subsequent wave adds 200. Each enemy type has an associated cost value — the spawner fills the wave by drawing from the enemy pool until the budget is exhausted. This system automatically produces harder and more varied mixes as the roster grows, with no manual scripting required per wave.
+Wave difficulty is governed by a points budget rather than a hardcoded enemy count. Wave 1 allocates 400 points; each subsequent wave adds 200. Each enemy type has an associated cost value, and the spawner fills the wave by drawing from the enemy pool until the budget is exhausted. This system automatically produces harder and more varied mixes as the roster grows, with no manual scripting required per wave.
 
 Spawn intervals decrease by 0.1 seconds per wave, with a floor of 0.5 seconds at wave 10 and beyond, maintaining sustained pressure even at high wave counts.
 
@@ -179,11 +179,11 @@ The AudioManager scans the `audio/` folder at startup and maps filenames to play
 
 | File                  | Event                                         | Source                                                        |
 |-----------------------|-----------------------------------------------|---------------------------------------------------------------|
-| `bgm.mp3`             | Looping background music (stops on Game Over) | "The Great Beyond" — Orboram (Freesound.org, CC)              |
-| `player_damage.mp3`   | Player hit                                    | "Retro hurt 2" — Driken5482 (Pixabay)                         |
-| `enemy_damage.mp3`    | Enemy hit                                     | "Hitmarker Sound Effect" — aruscio28 (Freesound.org, CC)      |
-| `round_win.mp3`       | Wave cleared                                  | "Short Success Sound Glockenspiel" — FunWithSound (Pixabay)   |
-| `game_over.mp3`       | Game Over screen                              | "negative_beeps" — themusicalnomad (Pixabay)                  |
+| `bgm.mp3`             | Looping background music (stops on Game Over) | "The Great Beyond" by Orboram (Freesound.org, CC)              |
+| `player_damage.mp3`   | Player hit                                    | "Retro hurt 2" by Driken5482 (Pixabay)                         |
+| `enemy_damage.mp3`    | Enemy hit                                     | "Hitmarker Sound Effect" by aruscio28 (Freesound.org, CC)      |
+| `round_win.mp3`       | Wave cleared                                  | "Short Success Sound Glockenspiel" by FunWithSound (Pixabay)   |
+| `game_over.mp3`       | Game Over screen                              | "negative_beeps" by themusicalnomad (Pixabay)                  |
 
 ---
 
@@ -211,7 +211,7 @@ Playtesting was conducted informally throughout development. Each demo included 
 ### 6.2 Iteration Evidence: Dash Tuning
 
 **Before playtesting:**
-The initial dash used a speed of 2,800 u/s over 0.12 seconds. The invincibility window was tied directly to dash duration — when movement ended, invulnerability ended with it.
+The initial dash used a speed of 2,800 u/s over 0.12 seconds. The invincibility window was tied directly to dash duration so when movement ended, invulnerability ended with it.
 
 **Playtest finding:**
 Testers reported that the dash covered too much distance and felt closer to a teleport than a dodge. The tied invuln window compounded the problem: by the time the dash completed, enemies had re-closed the gap, making the protection feel shorter than it actually was.
@@ -242,17 +242,17 @@ In addition to player-facing playtesting, the team conducted informal design rev
 
 The most significant structural issue encountered was the accumulation of logic in `game.py`. Spawning logic, collision detection, wave budget calculations, shop state management, and the draw loop all grew within this single file. While the pattern was reasonable during the early thin game loop, the absence of a clear rule about what belonged in `game.py` versus its own module meant it became the natural destination for anything that touched more than one system. The file ended up significantly larger and harder to navigate than any other module.
 
-In retrospect, a rule such as "if a block of logic exceeds 20 lines and maintains its own state, it gets its own file" — enforced from Week 8 onward — would have kept the file manageable. Collision logic, wave budget calculations, and shop logic should each have lived in dedicated modules or manager classes.
+In retrospect, a rule such as "if a block of logic exceeds 20 lines and maintains its own state, it gets its own file", enforced from week 7-8 onward, would have kept the file manageable. Collision logic, wave budget calculations, and shop logic should each have lived in dedicated modules or manager classes.
 
 ### 7.2 Object Registry Design
 
 Tracking game objects across four parallel lists (`all_things`, `all_living`, `all_enemies`, `all_projectiles`) meant that adding or removing any object required up to four separate list operations. Missing a removal from any list caused subtle bugs that were non-trivial to trace. Each new object type inherited this awkward pattern by convention.
 
-A single entity registry with tag-based filtering — `get_all(tag="enemy")` — established in Week 7 alongside the initial architecture would have handled all cases cleanly and been easier to extend as new types were added.
+A single entity registry with tag-based filtering such as `get_all(tag="enemy")` established in Week 7 alongside the initial architecture would have handled all cases cleanly and been easier to extend as new types were added.
 
 ### 7.3 Communication and Collaboration
 
-The team's workflow was largely deadline-driven, organised around assignment due dates rather than self-imposed milestones. Most work was completed in the few days preceding each submission, which created time pressure — particularly when simultaneous contributions were needed to large shared modules like `game.py`. Communication was conducted ad hoc through Discord, with no scheduled design or logistics meetings. The team acknowledges that a small number of recurring structured meetings across the semester would have distributed effort more evenly and reduced late-stage pressure.
+The team's workflow was largely deadline-driven, organised around assignment due dates rather than self-imposed milestones. Most work was completed in the few days preceding each submission, which created time pressure, particularly when simultaneous contributions were needed to large shared modules like `game.py`. Communication was conducted ad hoc through Discord, with no scheduled design or logistics meetings. The team acknowledges that a small number of recurring structured meetings across the semester would have distributed effort more evenly and reduced late-stage pressure.
 
 ### 7.4 Known Bugs and Missing Features
 
@@ -274,3 +274,4 @@ The data-driven architecture was the team's strongest technical decision. Extern
 The primary lessons from the project are structural and organisational. The accumulation of logic in `game.py` is the clearest example of a pattern that was pragmatic early and costly later. The multi-list object registry created recurring maintenance overhead that a tag-based entity manager would have eliminated. And the team's deadline-driven communication style, while sufficient to ship a complete game, produced unnecessary late-stage pressure that scheduled meetings would have relieved.
 
 Overall, the team is satisfied with the final product and with the process of getting there. The game is complete, playable, and fun.  The team leaves the project with a concrete and specific understanding of what to do differently on the next one.
+
